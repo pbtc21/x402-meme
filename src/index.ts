@@ -284,6 +284,50 @@ app.get('/api/health', (c) => {
   return c.json({ status: 'ok', service: 'x402-meme' });
 });
 
+// x402 Discovery endpoint
+app.get('/api/generate', (c) => {
+  const price = c.env.PRICE_SATS;
+  const payTo = c.env.PAYMENT_ADDRESS;
+
+  return c.json({
+    x402Version: 1,
+    name: "x402 Meme Generator",
+    accepts: [{
+      scheme: "exact",
+      network: "stacks",
+      maxAmountRequired: price,
+      resource: "/api/generate",
+      description: "AI meme generator - create custom memes with various styles",
+      mimeType: "application/json",
+      payTo: payTo,
+      maxTimeoutSeconds: 300,
+      asset: "sBTC",
+      outputSchema: {
+        input: {
+          type: "object",
+          properties: {
+            prompt: {
+              type: "string",
+              description: "Description of the meme to generate"
+            },
+            style: {
+              type: "string",
+              enum: ["meme", "cartoon", "realistic", "pixel", "anime"],
+              description: "Visual style of the meme"
+            }
+          },
+          required: ["prompt"]
+        },
+        output: {
+          type: "binary",
+          mimeType: "image/png",
+          description: "Generated meme image"
+        }
+      }
+    }]
+  });
+});
+
 // Generate meme endpoint
 app.post('/api/generate', async (c) => {
   const body = await c.req.json();
